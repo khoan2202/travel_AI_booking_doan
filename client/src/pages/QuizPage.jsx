@@ -2,7 +2,7 @@
 // Trả lời 5 câu hỏi ngắn -> server chấm điểm các tour còn chỗ theo sở thích -> hiện tour hợp nhất.
 // Không cần đăng nhập. Chỉ dùng dữ liệu tour thật trong database (không gọi AI).
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import TourImage from "../components/TourImage.jsx";
@@ -10,6 +10,7 @@ import { useRequest } from "../hooks/useRequest.js";
 import { request } from "../services/authApi.js";
 import { formatPrice } from "../utils/format.js";
 import { bookingDate, checkoutPath } from "../utils/booking.js";
+import { useCompare } from "../context/CompareContext.js";
 import "../styles/quiz.css";
 
 // Câu 1: đi cùng ai. guests = số khách cần đủ chỗ; bonus = tag cộng thêm điểm.
@@ -81,7 +82,7 @@ function toQuery(answers) {
 }
 
 // Phần kết quả: tour hợp nhất nổi bật, các tour còn lại xếp lưới.
-function QuizResults({ query, guests, onRestart }) {
+function QuizResults({ query, guests, onRestart, onCompare }) {
   const [retry, setRetry] = useState(0);
   const result = useRequest(`${query}#${retry}`, (signal) => request(`/recommendations/quiz?${query}`, { signal }));
   if (result.error) {
@@ -159,6 +160,7 @@ function QuizResults({ query, guests, onRestart }) {
       )}
 
       <div className="quiz-restart">
+        {items.length >= 2 && <button className="button button-primary" type="button" onClick={() => onCompare(items)}>So sánh các tour này ⇄</button>}
         <button className="button button-secondary" type="button" onClick={onRestart}>↺ Làm lại câu hỏi</button>
         <Link className="button button-dark" to="/recommendations">Hỏi thêm trợ lý AI ✦</Link>
       </div>
@@ -167,6 +169,8 @@ function QuizResults({ query, guests, onRestart }) {
 }
 
 export default function QuizPage() {
+  const navigate = useNavigate();
+  const { replace } = useCompare();
   // step: câu đang hỏi (0–4); bằng steps.length nghĩa là đang xem kết quả.
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState(emptyAnswers);
@@ -183,6 +187,11 @@ export default function QuizPage() {
   const finished = step >= steps.length;
   const restart = () => { setAnswers(emptyAnswers); setStep(0); };
   const guests = companions.find((c) => c.id === answers.companion)?.guests ?? 1;
+  function compareResults(items) {
+    const selected = items.slice(0, 3);
+    replace(selected);
+    navigate(`/compare?ids=${selected.map((tour) => tour.id).join(",")}`);
+  }
 
   function next(event) {
     event.preventDefault();
@@ -203,7 +212,7 @@ export default function QuizPage() {
 
         <div className="container quiz-body">
           {finished ? (
-            <QuizResults query={toQuery(answers)} guests={guests} onRestart={restart} />
+            <QuizResults query={toQuery(answers)} guests={guests} onRestart={restart} onCompare={compareResults} />
           ) : (
             <form className="quiz-card-step" onSubmit={next} aria-labelledby="quiz-question">
               {/* Thanh tiến độ */}
