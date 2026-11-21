@@ -3,6 +3,7 @@
 // - Tạm dừng khi rê chuột hoặc focus vào banner, hoặc khi bấm nút tạm dừng.
 // - Người dùng bật "giảm chuyển động" thì không tự chạy.
 import { useState } from "react";
+import { Link } from "react-router";
 
 // Thời gian mỗi slide (ms). Thanh tiến độ trong nút chấm dùng đúng giá trị này.
 const SLIDE_MS = 6500;
@@ -83,9 +84,15 @@ export default function Hero() {
         <h1 className="hero-line">{slide.title}</h1>
         <p className="hero-description hero-line">{slide.description}</p>
 
-        <a href="#tours" className="button button-primary hero-line">
-          Khám phá tour <span aria-hidden="true">↗</span>
-        </a>
+        {/* Hai nút ở giữa banner: xem tour, hoặc làm quiz nếu chưa biết đi đâu */}
+        <div className="hero-actions hero-line">
+          <a href="#tours" className="button button-primary">
+            Khám phá tour <span aria-hidden="true">↗</span>
+          </a>
+          <Link to="/quiz" className="button hero-quiz-button">
+            <span aria-hidden="true">🧭</span> Tôi chưa biết đi đâu
+          </Link>
+        </div>
       </div>
 
       {/* Nút chấm cho từng slide; chấm đang chọn có thanh tiến độ */}

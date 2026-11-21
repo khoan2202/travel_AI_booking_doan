@@ -83,3 +83,10 @@
 }
 @media (max-width: 420px) { .quiz-choices { grid-template-columns: 1fr; } .quiz-choice { flex-direction: row; text-align: left; } }
 @media (prefers-reduced-motion: reduce) { .quiz-question, .quiz-choices, .quiz-best, .quiz-card { animation: none; } }
+
+/* Nút "Tôi chưa biết đi đâu" giữa banner trang chủ (kiểu kính mờ, cạnh nút Khám phá tour) */
+.hero-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; }
+.button.hero-quiz-button { gap: 10px; color: #fff; border-color: rgb(255 255 255 / 55%); background: rgb(255 255 255 / 12%);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.button.hero-quiz-button:hover { background: rgb(255 255 255 / 24%); border-color: #fff; }
+@media (max-width: 480px) { .hero-actions .button { width: 100%; } }
