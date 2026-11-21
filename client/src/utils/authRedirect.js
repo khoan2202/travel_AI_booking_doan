@@ -5,7 +5,7 @@ export function safeAuthRedirect(value) {
   if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//')) return '/account';
   try {
     const url = new URL(value, 'http://travel.internal');
-    const allowed = ['/account', '/recommendations', '/contact', '/admin', '/admin/tours', '/admin/bookings', '/booking', '/my-bookings'].includes(url.pathname)
+    const allowed = ['/account', '/recommendations', '/quiz', '/contact', '/admin', '/admin/tours', '/admin/bookings', '/booking', '/my-bookings'].includes(url.pathname)
       || /^\/tours\/[1-9]\d*$/.test(url.pathname)
       || /^\/admin\/bookings\/[1-9]\d*$/.test(url.pathname)
       || /^\/my-bookings\/[1-9]\d*$/.test(url.pathname);

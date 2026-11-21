@@ -1,5 +1,5 @@
 // server/src/docs/openapi.js
-// Tài liệu cho 29 API hiện có của Travel Mint.
+// Tài liệu cho 30 API hiện có của Travel Mint.
 // File này chỉ mô tả API, không thay đổi xử lý backend.
 
 // ======================================================
@@ -930,7 +930,7 @@ const openapi = {
     },
 
     // ==================================================
-    // RECOMMENDATIONS — 3 API
+    // RECOMMENDATIONS — 4 API
     // ==================================================
 
     "/recommendations/options": {
@@ -966,6 +966,39 @@ const openapi = {
           }),
         ),
         errorCodes: [400, 409, 500, 503],
+      }),
+    },
+
+    "/recommendations/quiz": {
+      get: operation({
+        tag: "Recommendations",
+        summary: "Chọn tour bằng câu hỏi (cho khách chưa biết đi đâu)",
+        parameters: [
+          ...recommendationQueries.filter((item) => item.name !== "interest"),
+          query("tags", str({ maxLength: 300, example: "biển,nghỉ dưỡng" }), "Sở thích chính, ngăn cách bằng dấu phẩy (mỗi tag khớp +3 điểm)."),
+          query("bonus", str({ maxLength: 300, example: "gia đình" }), "Gợi ý theo người đi cùng (mỗi tag khớp +1 điểm)."),
+        ],
+        description:
+          "Chấm điểm tour theo sở thích và trả tối đa 6 tour. " +
+          "Nếu không có tour nào, tự nới lần lượt số ngày, ngân sách, khu vực; " +
+          "các tiêu chí đã nới nằm trong `relaxed`.",
+        output: dataResponse(
+          obj({
+            filters: ref("RecommendationFilters"),
+            relaxed: arr(str({ example: "ngân sách" })),
+            items: {
+              type: "array",
+              maxItems: 6,
+              items: obj({
+                ...recommendationFields,
+                matched_tags: arr(str()),
+                score: int({ minimum: 0 }),
+                match_percent: int({ minimum: 0, maximum: 100 }),
+              }),
+            },
+          }),
+        ),
+        errorCodes: [400, 500, 503],
       }),
     },
 

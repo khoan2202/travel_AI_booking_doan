@@ -1,6 +1,7 @@
 // Khai báo toàn bộ các trang (route) của website và đường dẫn tương ứng.
 import { BrowserRouter, Route, Routes } from "react-router";
 import RecommendationPage from "./pages/RecommendationPage.jsx";
+import QuizPage from "./pages/QuizPage.jsx";
 import "./styles/ai.css";
 import HomePage from "./pages/HomePage.jsx";
 import TourDetailPage from "./pages/TourDetailPage.jsx";
@@ -37,6 +38,8 @@ export default function App() {
     {/* Trang công khai: trang chủ, gợi ý tour, chi tiết tour */}
     <Route path="/" element={<HomePage />} />
     <Route path="/recommendations" element={<RecommendationPage />} />
+    {/* Chọn tour bằng câu hỏi, cho khách chưa biết đi đâu */}
+    <Route path="/quiz" element={<QuizPage />} />
     <Route path="/tours/:id" element={<TourDetailPage />} />
     {/* Đăng nhập / đăng ký dùng chung một trang. key khác nhau để React tạo lại trang khi đổi chế độ */}
     <Route path="/login" element={<AuthPage key="login" mode="login" />} />

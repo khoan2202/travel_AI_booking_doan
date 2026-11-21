@@ -60,6 +60,9 @@ export default function Header() {
           <Link to="/#tours" onClick={closeMenu}>
             Khám phá tour
           </Link>
+          <NavLink to="/quiz" onClick={closeMenu}>
+            Chọn tour giúp tôi
+          </NavLink>
           <NavLink to="/recommendations" onClick={closeMenu}>
             Tư vấn AI
           </NavLink>

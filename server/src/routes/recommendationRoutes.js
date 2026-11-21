@@ -5,7 +5,7 @@ import { rateLimitKey } from '../middleware/rateLimitKey.js';
 import { requireAuth } from '../middleware/auth.js';
 import { requireCsrf } from '../middleware/csrf.js';
 import { check, handle, text } from '../services/adminCommon.js';
-import { readFilters, recommend, recommendationOptions } from '../services/recommendationService.js';
+import { readFilters, recommend, recommendationOptions, readQuiz, quizMatch } from '../services/recommendationService.js';
 import { consult } from '../services/consultationService.js';
 const router = Router();
 router.use((req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
@@ -16,6 +16,11 @@ const ipLimit = rateLimit({ windowMs: 600000, limit: 30, keyGenerator: rateLimit
 const userLimit = rateLimit({ windowMs: 600000, limit: 10, keyGenerator: req => String(req.user.id), standardHeaders: 'draft-8', legacyHeaders: false, message: limitMessage });
 // GET /options: các lựa chọn cho bộ lọc (khu vực, tag, ...).
 router.get('/options', handle(async (req, res) => res.json({ data: await recommendationOptions() })));
+// GET /quiz: chọn tour bằng câu hỏi. Chấm điểm theo sở thích, tự nới bộ lọc nếu không có kết quả.
+// Ví dụ: /quiz?guests=2&days=3&budget=5000000&region=Miền Trung&tags=biển,nghỉ dưỡng&bonus=gia đình
+router.get('/quiz', handle(async (req, res) => {
+  res.json({ data: await quizMatch(readQuiz(req.query)) });
+}));
 // GET /: lọc tour theo ngân sách, số ngày, số khách... (truy vấn SQL, không dùng AI).
 router.get('/', handle(async (req, res) => {
   const filters = readFilters(req.query); res.json({ data: { filters, items: await recommend(filters) } });
