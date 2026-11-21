@@ -1,0 +1,122 @@
+/* Chế độ tối (dark mode).
+   Bật khi <html data-theme="dark"> (xem public/theme-init.js và components/ThemeToggle.jsx).
+   File này import SAU CÙNG trong App.jsx để ghi đè màu sáng ở các file CSS khác.
+   Header, banner, trang đăng nhập và lightbox vốn đã tối nên không cần đổi. */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d1513;
+  --text: #e4eeea;
+  --surface: #131e1b;
+  --surface-2: #182622;
+  --muted: #9bb0a8;
+  --line: #263732;
+  --accent-soft: #123a2e;
+  --accent-text: #8ff0cc;
+  --warn-soft: #33290f;
+  --warn-text: #f3d98a;
+}
+
+/* ---------- Thành phần chung ---------- */
+:root[data-theme="dark"] .section-kicker { color: #3ee6b4; }
+:root[data-theme="dark"] .button-secondary { background: var(--surface-2); border-color: var(--line); color: var(--text); }
+:root[data-theme="dark"] .button-secondary:hover { background: #20332d; }
+:root[data-theme="dark"] .button-dark { background: #00c99a; color: #0d1513; }
+:root[data-theme="dark"] .button-dark:hover { background: #3ee6b4; }
+:root[data-theme="dark"] .state-box,
+:root[data-theme="dark"] .state-box h3 { color: var(--text); border-color: var(--line); }
+:root[data-theme="dark"] .error-box { background: #2a1714; border-color: #5b2f28; }
+:root[data-theme="dark"] .to-top { background: #00c99a; color: #0d1513; }
+
+/* Ô nhập liệu (trừ trang đăng nhập vốn đã có kiểu tối riêng) */
+:root[data-theme="dark"] :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):not(.auth-modern *) {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: #33473f;
+}
+:root[data-theme="dark"] :is(input, textarea)::placeholder { color: #6f857c; }
+:root[data-theme="dark"] :is(input, select, textarea):disabled,
+:root[data-theme="dark"] input[readonly] { background: #111a17 !important; color: var(--muted) !important; }
+
+/* ---------- Trang chủ ---------- */
+:root[data-theme="dark"] .tour-filters { background: var(--surface); }
+:root[data-theme="dark"] .tour-card { background: var(--surface); }
+:root[data-theme="dark"] .tour-picture,
+:root[data-theme="dark"] .gallery-thumb { background: #1d2c28; }
+:root[data-theme="dark"] .tour-tags span { background: #1c2d28; color: #a6d9c4; }
+:root[data-theme="dark"] .tour-card:hover .tour-tags span { background: #123a2e; color: #8ff0cc; }
+:root[data-theme="dark"] .travel-callout { background: linear-gradient(120deg, #10261f, #15302a, #102a2a, #132b23) 0 50% / 300% 300%; }
+:root[data-theme="dark"] .skeleton-media,
+:root[data-theme="dark"] .skeleton-line { background: linear-gradient(100deg, #18241f 30%, #22322c 50%, #18241f 70%) 0 0 / 300% 100%; }
+:root[data-theme="dark"] .gallery-credit:hover { color: #3ee6b4; }
+
+/* ---------- Chi tiết tour ---------- */
+:root[data-theme="dark"] .detail-help,
+:root[data-theme="dark"] .refresh-message { background: var(--surface-2); }
+:root[data-theme="dark"] .refresh-message.is-error { background: #2a1714; }
+:root[data-theme="dark"] .departure-panel { background: var(--surface); border-color: var(--line); }
+:root[data-theme="dark"] .departure-option { background: var(--surface-2); border-color: var(--line); }
+:root[data-theme="dark"] .departure-option.is-selected { background: var(--accent-soft); }
+:root[data-theme="dark"] .guests-field input { color: var(--text); }
+
+/* ---------- Tư vấn AI ---------- */
+:root[data-theme="dark"] .ai-filter { background: var(--surface); }
+:root[data-theme="dark"] .suggestion-card { background: var(--surface); }
+:root[data-theme="dark"] .suggestion-reason,
+:root[data-theme="dark"] .ai-message,
+:root[data-theme="dark"] .ai-empty,
+:root[data-theme="dark"] .ai-signin { background: var(--surface-2); }
+:root[data-theme="dark"] .ai-message.user { background: #1f4a3c; }
+:root[data-theme="dark"] .ai-note { color: var(--muted); }
+
+/* ---------- Đặt tour, đơn hàng ---------- */
+:root[data-theme="dark"] .booking-policy { background: var(--surface-2); color: var(--muted); }
+:root[data-theme="dark"] .checkout-contact .booking-form .booking-agreement { color: var(--text); }
+:root[data-theme="dark"] .checkout-contact .booking-form textarea { color: var(--text); border-color: #33473f; }
+:root[data-theme="dark"] .booking-receipt-contact { background: var(--surface-2); }
+:root[data-theme="dark"] .booking-badge { background: var(--accent-soft); color: var(--accent-text); }
+:root[data-theme="dark"] .booking-badge.cancelled { background: #3a231b; color: #f0b9a5; }
+:root[data-theme="dark"] .booking-pending { border-color: #2f5546; }
+
+/* ---------- Tài khoản, quản trị ---------- */
+:root[data-theme="dark"] .role-badge { background: var(--accent-soft); color: var(--accent-text); }
+:root[data-theme="dark"] .admin-metrics strong { color: #3ee6b4; }
+:root[data-theme="dark"] .admin-table th { background: var(--surface-2); }
+:root[data-theme="dark"] .header-error { background: #3a1d18; color: #ffcfc4; }
+
+/* ---------- Liên hệ ---------- */
+:root[data-theme="dark"] .contact-page { background: linear-gradient(180deg, #10221d 0%, #0f1916 55%, var(--bg) 100%); color: var(--text); }
+:root[data-theme="dark"] .contact-kicker { color: #3ee6b4; }
+:root[data-theme="dark"] .contact-heading > p:last-child,
+:root[data-theme="dark"] .contact-muted { color: var(--muted); }
+:root[data-theme="dark"] .contact-muted a { color: #3ee6b4; }
+:root[data-theme="dark"] .contact-intro { background: #123329; }
+:root[data-theme="dark"] .contact-form,
+:root[data-theme="dark"] .contact-channel-list a { background: var(--surface); border-color: var(--line); color: var(--text); }
+:root[data-theme="dark"] .contact-field label { color: var(--text); }
+:root[data-theme="dark"] .contact-feedback--error { background: #2a1714; color: #ffb4a6; }
+:root[data-theme="dark"] .contact-feedback--success { background: #12301f; color: #a8f0c6; }
+
+/* ---------- Quiz ---------- */
+:root[data-theme="dark"] .quiz-card-step,
+:root[data-theme="dark"] .quiz-best,
+:root[data-theme="dark"] .quiz-loading { box-shadow: 0 24px 60px rgba(0, 0, 0, .45); }
+:root[data-theme="dark"] .quiz-choice:hover { border-color: #2f8f72; }
+:root[data-theme="dark"] .quiz-choice.is-checked { border-color: #00c99a; box-shadow: inset 0 0 0 1px #00c99a; }
+:root[data-theme="dark"] .quiz-relaxed { border-color: #6b5520; }
+
+/* ---------- Giá tiền, link màu xanh đậm: đổi sang xanh mint sáng cho dễ đọc ---------- */
+:root[data-theme="dark"] :is(
+  .tour-price-row strong, .suggestion-body > strong, .suggestion-detail, .ai-signin a,
+  .booking-refresh, .booking-total strong, .checkout-summary-body > a, .pending-history-link,
+  .booking-list-bottom > strong, .departure-option-content > strong, .quote-summary strong,
+  .tour-card h3 a:hover
+) { color: #3ee6b4; }
+
+/* ---------- Nút đổi chế độ ---------- */
+.theme-toggle { display: inline-grid; place-items: center; width: 40px; height: 40px; min-height: 40px; padding: 0; border-radius: 50%;
+  border: 1px solid rgb(255 255 255 / 22%); background: rgb(255 255 255 / 6%); color: #fff; font-size: 18px; line-height: 1;
+  transition: background-color .2s, transform .3s; }
+.theme-toggle:hover { background: rgb(255 255 255 / 14%); transform: rotate(-15deg); }
+.theme-toggle:disabled { cursor: pointer; }
+.header-tools { display: flex; align-items: center; gap: 10px; flex: none; }

@@ -4,6 +4,7 @@
 import { Link, NavLink } from "react-router";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext.js";
+import ThemeToggle from "./ThemeToggle.jsx";
 
 export default function Header() {
   // menuOpen: menu đang mở trên điện thoại hay không.
@@ -39,16 +40,6 @@ export default function Header() {
         >
           TRAVEL <span>MINT.</span>
         </Link>
-        {/* Nút mở/đóng menu, chỉ hiện trên màn hình nhỏ (xem CSS) */}
-        <button
-          className="menu-toggle"
-          type="button"
-          aria-expanded={menuOpen}
-          aria-controls="main-menu"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          {menuOpen ? "Đóng menu" : "Menu ☰"}
-        </button>
         <nav
           id="main-menu"
           className={menuOpen ? "main-menu is-open" : "main-menu"}
@@ -61,7 +52,7 @@ export default function Header() {
             Khám phá tour
           </Link>
           <NavLink to="/quiz" onClick={closeMenu}>
-            Chọn tour giúp tôi
+            Gợi ý nhanh
           </NavLink>
           <NavLink to="/recommendations" onClick={closeMenu}>
             Tư vấn AI
@@ -105,6 +96,19 @@ export default function Header() {
             </Link>
           )}
         </nav>
+        {/* Nút sáng/tối luôn hiện; nút mở/đóng menu chỉ hiện trên màn hình nhỏ (xem CSS) */}
+        <div className="header-tools">
+          <ThemeToggle />
+          <button
+            className="menu-toggle"
+            type="button"
+            aria-expanded={menuOpen}
+            aria-controls="main-menu"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? "Đóng menu" : "Menu ☰"}
+          </button>
+        </div>
       </div>
       {error && (
         <p className="header-error" role="alert">

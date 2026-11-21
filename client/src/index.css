@@ -1,8 +1,9 @@
 /* CSS nền tảng cho toàn trang: html, body, link, nút bấm, ảnh. */
 :root {
   font-family: "Poppins", "Segoe UI", Arial, sans-serif;
-  color: #232323;
-  background: #fff;
+  color: var(--text);
+  background: var(--bg);
+  color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -10,10 +11,19 @@
   --dark: #232323;
   --muted: #5d6866;
   --line: #e6ece9;
+  /* Màu theo chế độ sáng/tối. Chế độ tối định nghĩa lại trong styles/theme.css. */
+  --bg: #fff;
+  --text: #232323;
+  --surface: #fff;
+  --surface-2: #f7fbf9;
+  --accent-soft: #e6fbf3;
+  --accent-text: #1d553e;
+  --warn-soft: #fff8e6;
+  --warn-text: #6b5312;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 108px; }
-body { margin: 0; min-width: 320px; }
+body { margin: 0; min-width: 320px; background: var(--bg); color: var(--text); transition: background-color .3s, color .3s; }
 button, input, select, textarea { font: inherit; }
 button, a, input, select, summary { -webkit-tap-highlight-color: transparent; }
 button, summary { cursor: pointer; }

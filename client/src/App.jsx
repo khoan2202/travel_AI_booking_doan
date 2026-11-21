@@ -28,6 +28,8 @@ import "./styles/admin.css";
 import "./styles/gallery.css";
 // Hiệu ứng chuyển động: import sau cùng để ghi đè style ở trên khi cần.
 import "./styles/motion.css";
+// Chế độ tối: import sau cùng để ghi đè màu sáng ở mọi file CSS phía trên.
+import "./styles/theme.css";
 import MotionLayer from "./components/MotionLayer.jsx";
 
 // BrowserRouter: quản lý URL. AuthProvider: chia sẻ trạng thái đăng nhập cho mọi trang.
