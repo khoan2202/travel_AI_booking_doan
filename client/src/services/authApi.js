@@ -38,9 +38,9 @@ export async function request(path, { method = "GET", body, token, signal } = {}
     return result.data;
   } catch (error) {
     // Đổi lỗi kỹ thuật thành câu dễ hiểu: quá giờ, mất mạng, server trả dữ liệu không phải JSON.
-    if (timedOut) throw new Error("Máy chủ phản hồi quá lâu. Vui lòng thử lại.");
-    if (error instanceof TypeError) throw new Error("Chưa kết nối được máy chủ. Vui lòng thử lại.");
-    if (error instanceof SyntaxError) throw new Error("Phản hồi của máy chủ chưa đúng định dạng.");
+    if (timedOut) throw new Error("Máy chủ phản hồi quá lâu. Vui lòng thử lại.", { cause: error });
+    if (error instanceof TypeError) throw new Error("Chưa kết nối được máy chủ. Vui lòng thử lại.", { cause: error });
+    if (error instanceof SyntaxError) throw new Error("Phản hồi của máy chủ chưa đúng định dạng.", { cause: error });
     throw error;
   } finally {
     clearTimeout(timeout);

@@ -1,8 +1,9 @@
 // Trang "Tư vấn AI" (/recommendations), gồm 2 phần:
 // 1. Bộ lọc: gợi ý tour bằng truy vấn database (ai cũng dùng được).
 // 2. Chat với trợ lý Gemini dựa trên các tour đã lọc (cần đăng nhập).
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router';
+import { useRequest } from '../hooks/useRequest.js';
 import Header from '../components/Header.jsx';
 import Footer from '../components/Footer.jsx';
 import TourImage from '../components/TourImage.jsx';
@@ -25,19 +26,19 @@ export default function RecommendationPage() {
   // form: giá trị đang nhập; filters: bộ lọc đã áp dụng (sau khi bấm "Tìm tour").
   const [form, setForm] = useState(initial), [filters, setFilters] = useState(initial);
   const [options, setOptions] = useState({ regions: [], interests: [] });
-  const [items, setItems] = useState(null), [error, setError] = useState(''), [reload, setReload] = useState(0);
+  const [reload, setReload] = useState(0);
   // message: câu đang gõ; messages: lịch sử chat; result: kết quả trả lời gần nhất.
   const [message, setMessage] = useState(''), [messages, setMessages] = useState([]), [result, setResult] = useState(null);
   const [busy, setBusy] = useState(false), [chatError, setChatError] = useState('');
   // Tải lựa chọn bộ lọc và danh sách gợi ý mỗi khi đổi bộ lọc.
-  useEffect(() => {
-    const ctrl = new AbortController(); setItems(null); setError('');
-    Promise.all([request('/recommendations/options', { signal: ctrl.signal }), request('/recommendations?' + new URLSearchParams(filters), { signal: ctrl.signal })])
-      .then(([o, r]) => { if (!ctrl.signal.aborted) { setOptions(o); setItems(r.items); } }).catch(e => { if (!ctrl.signal.aborted) setError(e.message); });
-    return () => ctrl.abort();
-  }, [filters, reload]);
+  const suggestions = useRequest(JSON.stringify([filters, reload]), (signal) =>
+    Promise.all([request('/recommendations/options', { signal }), request('/recommendations?' + new URLSearchParams(filters), { signal })])
+      .then(([o, r]) => { if (!signal.aborted) setOptions(o); return r.items; }));
+  const items = suggestions.data ?? null, error = suggestions.error?.message || '';
   // Đổi tài khoản (đăng nhập/đăng xuất) thì xóa cuộc trò chuyện cũ.
-  useEffect(() => { setMessages([]); setResult(null); setChatError(''); }, [user?.id]);
+  // Điều chỉnh state ngay khi render thay vì dùng effect (xem react.dev "You might not need an effect").
+  const [chatOwner, setChatOwner] = useState(user?.id);
+  if (chatOwner !== user?.id) { setChatOwner(user?.id); setMessages([]); setResult(null); setChatError(''); }
   const change = (key, value) => setForm(f => ({ ...f, [key]: value }));
   // Áp dụng bộ lọc mới và bắt đầu cuộc trò chuyện mới.
   function filter(event) { event.preventDefault(); setFilters({ ...form }); setMessages([]); setResult(null); setChatError(''); }

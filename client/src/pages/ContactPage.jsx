@@ -95,7 +95,7 @@ function ContactForm({ user }) {
     // Chuẩn hóa dữ liệu trước khi gửi: bỏ khoảng trắng, đổi mã đơn sang số.
     const payload = {
       full_name: form.full_name.trim(),
-      phone: form.phone.trim().replace(/[\s.-]/g, ""),
+      phone: form.phone.trim().replace(/[\s().-]/g, ""),
       booking_id: form.booking_id ? Number(form.booking_id) : null,
       message: form.message.trim(),
     };
@@ -208,7 +208,7 @@ function ContactForm({ user }) {
             {!userId ? (
               <>
                 Bạn vẫn có thể gửi hỗ trợ chung.{" "}
-                <Link to="/login">Đăng nhập</Link> để chọn tour đã đặt.
+                <Link to="/login" state={{ from: "/contact" }}>Đăng nhập</Link> để chọn tour đã đặt.
               </>
             ) : loadingBookings ? (
               "Đang tải các đơn đặt tour…"

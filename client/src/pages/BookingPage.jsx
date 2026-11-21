@@ -1,8 +1,9 @@
 // Trang đặt tour (/booking?tour=..&departure=..&guests=..): nhập thông tin liên hệ và xác nhận đặt.
 // Cơ chế chống đặt trùng: mỗi lần đặt có một request_key (UUID) lưu tạm trong sessionStorage.
 // Nếu mạng lỗi giữa chừng, bấm "Thử lại" sẽ gửi đúng mã cũ, server trả về đơn đã tạo thay vì tạo đơn mới.
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router';
+import { useRequest } from '../hooks/useRequest.js';
 import Header from '../components/Header.jsx';
 import Footer from '../components/Footer.jsx';
 import TourImage from '../components/TourImage.jsx';
@@ -23,8 +24,6 @@ function BookingForm({ user, tourId, departureId, guests }) {
   const [phone, setPhone] = useState(pending?.body.contact_phone || '');
   const [notes, setNotes] = useState(pending?.body.notes || '');
   const [agreed, setAgreed] = useState(false);
-  const [data, setData] = useState(null);
-  const [loadError, setLoadError] = useState('');
   const [error, setError] = useState('');
   const [retry, setRetry] = useState(0);
   const [sending, setSending] = useState(false);
@@ -38,20 +37,15 @@ function BookingForm({ user, tourId, departureId, guests }) {
     && pending.body.departure_id === departureId && pending.body.guest_count === guests;
 
   // Tải thông tin tour và lịch đi mới nhất để hiện giá, số chỗ.
-  useEffect(() => {
-    if (!validParams) return;
-    const controller = new AbortController();
-    setData(null); setLoadError(''); setAgreed(false);
-    Promise.all([getTourById(tourId, controller.signal), getTourDepartures(tourId, controller.signal)])
+  // Mỗi lần tải lại (retry) phải tick đồng ý lại với giá mới.
+  const request = useRequest(validParams ? String(retry) : null, (signal) =>
+    Promise.all([getTourById(tourId, signal), getTourDepartures(tourId, signal)])
       .then(([tour, departures]) => {
-        if (!controller.signal.aborted) {
-          setData({ tour, departure: departures.find((item) => item.id === departureId) });
-          setNeedsRefresh(false);
-        }
-      })
-      .catch((err) => { if (!controller.signal.aborted) setLoadError(err.message); });
-    return () => controller.abort();
-  }, [tourId, departureId, retry, validParams]);
+        if (!signal.aborted) { setNeedsRefresh(false); setAgreed(false); }
+        return { tour, departure: departures.find((item) => item.id === departureId) };
+      }));
+  const data = request.data ?? null;
+  const loadError = request.error?.message || '';
 
   // Lịch đã chọn, còn đủ chỗ không, và tổng tiền.
   const departure = data?.departure;

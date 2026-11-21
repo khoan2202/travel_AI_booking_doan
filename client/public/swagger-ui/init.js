@@ -1,3 +1,4 @@
+/* global SwaggerUIBundle, SwaggerUIStandalonePreset */
 window.onload = function () {
   window.ui = SwaggerUIBundle({
     url: "/api-docs.json",

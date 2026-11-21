@@ -1,6 +1,7 @@
 // Trang "Đơn của tôi" (/my-bookings?page=1): danh sách đơn của người đang đăng nhập.
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
+import { useRequest } from '../hooks/useRequest.js';
 import Header from '../components/Header.jsx';
 import Footer from '../components/Footer.jsx';
 import { useAuth } from '../context/AuthContext.js';
@@ -13,21 +14,13 @@ export default function MyBookingsPage() {
   const [params, setParams] = useSearchParams();
   const parsedPage = Number(params.get('page') || 1);
   const page = Number.isInteger(parsedPage) && parsedPage > 0 && parsedPage <= 1000000 ? parsedPage : 1;
-  const [data, setData] = useState(null);
-  const [error, setError] = useState('');
   const [retry, setRetry] = useState(0);
   const { reload } = useAuth();
-  // Tải danh sách đơn. Lỗi 401 (phiên hết hạn) thì kiểm tra lại đăng nhập.
-  useEffect(() => {
-    const controller = new AbortController();
-    setData(null); setError('');
-    getMyBookings(page, controller.signal)
-      .then((result) => { if (!controller.signal.aborted) setData(result); })
-      .catch((err) => { if (!controller.signal.aborted) { setError(err.message); if (err.status === 401) reload(); } });
-    return () => controller.abort();
-    // reload được gọi khi phiên hết hạn; chỉ tải danh sách khi đổi trang hoặc retry.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, retry]);
+  // Tải danh sách đơn khi đổi trang hoặc bấm thử lại. Lỗi 401 (phiên hết hạn) thì kiểm tra lại đăng nhập.
+  const request = useRequest(`${page}:${retry}`, (signal) => getMyBookings(page, signal)
+    .catch((err) => { if (err.status === 401) reload(); throw err; }));
+  const data = request.data ?? null;
+  const error = request.error?.message || '';
   return <><Header /><main className="container booking-page">
     <p className="section-kicker">NHỮNG HÀNH TRÌNH CỦA BẠN</p><h1>Đơn của tôi</h1>
     <p className="booking-intro">Xem thông tin và trạng thái các tour bạn đã đặt.</p>

@@ -4,7 +4,7 @@
 BEGIN;
 -- Kiểm tra an toàn: database đã có bảng thì báo lỗi và dừng, không ghi đè dữ liệu cũ.
 DO $$ BEGIN
-IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('destinations','tours','tour_departures','users','user_sessions','bookings','admin_audit_logs','booking_payment_events')) THEN
+IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('destinations','tours','tour_departures','users','user_sessions','bookings','admin_audit_logs','booking_payment_events','support_requests')) THEN
  RAISE EXCEPTION 'Database is not empty. Use migrations or restore into another empty database.';
 END IF; END $$;
 
@@ -120,4 +120,15 @@ CREATE TABLE booking_payment_events (
 
 -- Index một phần: chỉ đánh index các lịch đang nhận đặt, giúp truy vấn tour công khai nhanh hơn.
 CREATE INDEX IF NOT EXISTS idx_departures_public ON tour_departures(tour_id,start_date) WHERE status='scheduled';
+-- Yêu cầu hỗ trợ từ trang Liên hệ (giống sql/007_create_support_requests.sql).
+CREATE TABLE support_requests (
+  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id),
+  booking_id INTEGER REFERENCES bookings(id),
+  full_name VARCHAR(100) NOT NULL CHECK (char_length(trim(full_name)) BETWEEN 2 AND 100),
+  phone VARCHAR(16) NOT NULL CHECK (phone ~ '^\+?[0-9]{9,15}$'),
+  message TEXT NOT NULL CHECK (char_length(trim(message)) BETWEEN 10 AND 3000),
+  status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'resolved')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 COMMIT;

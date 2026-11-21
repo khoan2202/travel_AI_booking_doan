@@ -9,10 +9,11 @@ export async function createSupportRequest(req, res, next) {
   const fullName =
     typeof body.full_name === "string" ? body.full_name.trim() : "";
 
-  // Cho phép khách nhập khoảng trắng, dấu chấm hoặc dấu gạch ngang.
+  // Cho phép khách nhập khoảng trắng, dấu chấm, dấu gạch ngang hoặc ngoặc (giống form đặt tour).
+  // Giới hạn độ dài chuỗi gốc để không xử lý chuỗi quá lớn.
   const phone =
-    typeof body.phone === "string"
-      ? body.phone.trim().replace(/[\s.-]/g, "")
+    typeof body.phone === "string" && body.phone.length <= 30
+      ? body.phone.trim().replace(/[\s().-]/g, "")
       : "";
 
   const message =

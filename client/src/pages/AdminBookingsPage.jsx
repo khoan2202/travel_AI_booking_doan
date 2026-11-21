@@ -1,6 +1,7 @@
 // Trang danh sách đơn cho admin (/admin/bookings): lọc theo từ khóa, trạng thái đơn, trạng thái thanh toán.
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router';
+import { useRequest } from '../hooks/useRequest.js';
 import Header from '../components/Header.jsx';
 import Footer from '../components/Footer.jsx';
 import AdminNav from '../components/AdminNav.jsx';
@@ -10,9 +11,10 @@ import { formatPrice } from '../utils/format.js';
 export default function AdminBookingsPage(){
   // draft: giá trị đang gõ trong form lọc; filters: bộ lọc thực sự áp dụng (sau khi bấm "Lọc đơn").
   const [filters,setFilters]=useState({page:1,q:'',status:'',payment:''}),[draft,setDraft]=useState({q:'',status:'',payment:''});
-  const [data,setData]=useState(null),[error,setError]=useState(''),[retry,setRetry]=useState(0);
+  const [retry,setRetry]=useState(0);
   // Tải danh sách mỗi khi đổi bộ lọc, đổi trang hoặc bấm thử lại.
-  useEffect(()=>{const c=new AbortController();setData(null);setError('');getAdminBookings(filters,c.signal).then(d=>{if(!c.signal.aborted)setData(d);}).catch(e=>{if(!c.signal.aborted)setError(e.message);});return()=>c.abort();},[filters,retry]);
+  const request=useRequest(JSON.stringify([filters,retry]),signal=>getAdminBookings(filters,signal));
+  const data=request.data??null,error=request.error?.message||'';
   return <><Header/><main className="container admin-page"><AdminNav/><p className="section-kicker">VẬN HÀNH TOUR</p><h1>Đơn đặt & thanh toán</h1><p className="account-intro">Theo dõi đơn, ghi nhận thanh toán và xử lý hủy/hoàn tiền thủ công.</p>
     {/* Form bộ lọc */}
     <div className="admin-toolbar"><form onSubmit={e=>{e.preventDefault();setFilters({...draft,page:1});}}><input aria-label="Tìm đơn" value={draft.q} maxLength="100" placeholder="Mã đơn, tên, email hoặc tour" onChange={e=>setDraft({...draft,q:e.target.value})}/><select aria-label="Trạng thái đơn" value={draft.status} onChange={e=>setDraft({...draft,status:e.target.value})}><option value="">Tất cả đơn</option><option value="confirmed">Còn hiệu lực</option><option value="cancelled">Đã hủy</option></select><select aria-label="Thanh toán" value={draft.payment} onChange={e=>setDraft({...draft,payment:e.target.value})}><option value="">Tất cả thanh toán</option><option value="unpaid">Chưa thanh toán</option><option value="paid">Đã thanh toán</option><option value="refunded">Đã hoàn tiền</option></select><button className="button button-primary">Lọc đơn</button></form></div>

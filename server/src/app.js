@@ -89,7 +89,9 @@ export function createApp({ serveClient, sameOriginWorker = false } = {}) {
             return callback(null, true);
           }
 
-          return callback(new Error(`Origin not allowed by CORS: ${origin}`));
+          const error = new Error(`Origin not allowed by CORS: ${origin}`);
+          error.status = 403;
+          return callback(error);
         },
         // Cho phép gửi kèm cookie phiên đăng nhập.
         credentials: true,
@@ -182,16 +184,15 @@ if (swaggerUi) {
   // Bộ bắt lỗi chung: lỗi nào lọt tới đây đều trả thông báo chung, không lộ chi tiết.
   app.use((error, req, res, next) => {
     console.error("Lỗi xử lý API:", error.code || error.name);
-    // 400 = body sai định dạng, 413 = body quá lớn; các lỗi còn lại tính là 500.
-    const status = [400, 413].includes(error.status) ? error.status : 500;
-    res
-      .status(status)
-      .json({
-        message:
-          status === 500
-            ? "Có lỗi phía máy chủ. Vui lòng thử lại."
-            : "Nội dung yêu cầu không hợp lệ hoặc quá lớn.",
-      });
+    // 400 = body sai định dạng, 413 = body quá lớn, 403 = origin bị CORS chặn; còn lại là 500.
+    const status = [400, 403, 413].includes(error.status) ? error.status : 500;
+    const messages = {
+      400: "Nội dung yêu cầu không hợp lệ hoặc quá lớn.",
+      403: "Nguồn gửi yêu cầu không được chấp nhận.",
+      413: "Nội dung yêu cầu không hợp lệ hoặc quá lớn.",
+      500: "Có lỗi phía máy chủ. Vui lòng thử lại.",
+    };
+    res.status(status).json({ message: messages[status] });
   });
   return app;
 }

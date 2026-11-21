@@ -1,6 +1,7 @@
 // Trang quản lý tour (/admin/tours): tìm kiếm, tạo/sửa tour, thêm điểm đến,
 // và quản lý các lịch khởi hành của từng tour.
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useRequest } from '../hooks/useRequest.js';
 import Header from '../components/Header.jsx';
 import Footer from '../components/Footer.jsx';
 import AdminNav from '../components/AdminNav.jsx';
@@ -21,29 +22,25 @@ export default function AdminToursPage() {
   // Danh sách state:
   // list: danh sách tour đang xem; page/search: trang và từ khóa; version: tăng lên để tải lại dữ liệu
   // form: tour đang sửa (null = đóng form); departures: lịch đi của tour đang sửa; dep: form lịch đi
-  const [destinations, setDestinations] = useState([]), [list, setList] = useState(null);
   const [page, setPage] = useState(1), [query, setQuery] = useState(''), [search, setSearch] = useState(''), [version, setVersion] = useState(0);
-  const [form, setForm] = useState(null), [departures, setDepartures] = useState(null), [dep, setDep] = useState(emptyDeparture);
+  const [form, setForm] = useState(null), [dep, setDep] = useState(emptyDeparture);
   const [destination, setDestination] = useState({ name: '', slug: '', region: '' });
-  const [error, setError] = useState(''), [notice, setNotice] = useState(''), [busy, setBusy] = useState(false);
+  const [actionError, setError] = useState(''), [notice, setNotice] = useState(''), [busy, setBusy] = useState(false);
   // Tải danh sách điểm đến và tour mỗi khi đổi trang, đổi từ khóa hoặc sau khi lưu.
-  useEffect(() => {
-    const ctrl = new AbortController(); setError(''); setList(null);
-    Promise.all([getDestinations(ctrl.signal), getAdminTours(page, search, ctrl.signal)])
-      .then(([d, t]) => { if (!ctrl.signal.aborted) { setDestinations(d); setList(t); } })
-      .catch(e => { if (!ctrl.signal.aborted) setError(e.message); });
-    return () => ctrl.abort();
-  }, [page, search, version]);
+  // Danh sách điểm đến giữ trong state riêng để ô chọn trong form không bị trống lúc tải lại.
+  const [destinations, setDestinations] = useState([]);
+  const catalog = useRequest(JSON.stringify([page, search, version]), (signal) =>
+    Promise.all([getDestinations(signal), getAdminTours(page, search, signal)])
+      .then(([d, t]) => { if (!signal.aborted) setDestinations(d); return t; }));
+  const list = catalog.data ?? null;
   // Mở form sửa tour nào thì tải lịch khởi hành của tour đó.
-  useEffect(() => {
-    const ctrl = new AbortController(); setDepartures(null); setDep(emptyDeparture);
-    if (form?.id) getAdminDepartures(form.id, ctrl.signal).then(d => { if (!ctrl.signal.aborted) setDepartures(d); }).catch(e => { if (!ctrl.signal.aborted) setError(e.message); });
-    return () => ctrl.abort();
-  }, [form?.id, version]);
+  const departureRequest = useRequest(form?.id ? `${form.id}:${version}` : null, (signal) => getAdminDepartures(form.id, signal));
+  const departures = departureRequest.data ?? null;
+  const error = actionError || catalog.error?.message || departureRequest.error?.message || '';
   // Sửa một trường trong form tour.
   const change = (key, value) => setForm(f => ({ ...f, [key]: value }));
   // Mở form sửa tour. tags là mảng nên đổi thành chuỗi "a, b, c" để hiện trong ô nhập.
-  function edit(tour) { setForm({ ...tour, image_url: tour.image_url || '', tags: tour.tags.join(', ') }); setError(''); setNotice(''); }
+  function edit(tour) { setForm({ ...tour, image_url: tour.image_url || '', tags: tour.tags.join(', ') }); setDep(emptyDeparture); setError(''); setNotice(''); }
   // act(): chạy một thao tác lưu, tự bật/tắt trạng thái bận, báo lỗi, và tải lại dữ liệu khi xong.
   async function act(work) { setBusy(true); setError(''); setNotice(''); try { await work(); setVersion(n => n + 1); } catch(e) { setError(e.message); } finally { setBusy(false); } }
   // Lưu tour: đổi kiểu dữ liệu cho đúng (số, mảng tag) trước khi gửi.

@@ -1,6 +1,7 @@
 // Trang chi tiết đơn của khách (/my-bookings/:id): thông tin đơn và nút hủy đơn.
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router';
+import { useRequest } from '../hooks/useRequest.js';
 import Header from '../components/Header.jsx';
 import Footer from '../components/Footer.jsx';
 import { useAuth } from '../context/AuthContext.js';
@@ -11,36 +12,31 @@ import { formatPrice } from '../utils/format.js';
 function BookingDetail({ id }) {
   const location = useLocation();
   const { reload } = useAuth();
-  const [booking, setBooking] = useState(null);
-  const [loadError, setLoadError] = useState('');
+  // updated: dữ liệu đơn mới nhất sau khi hủy (ưu tiên hơn dữ liệu tải lúc đầu).
+  const [updated, setUpdated] = useState(null);
   const [error, setError] = useState('');
   const [retry, setRetry] = useState(0);
   // confirming: đang hiện hộp xác nhận hủy; sending: đang gửi yêu cầu hủy.
   const [confirming, setConfirming] = useState(false);
   const [sending, setSending] = useState(false);
   // Tải thông tin đơn khi mở trang hoặc bấm thử lại.
-  useEffect(() => {
-    const controller = new AbortController();
-    setLoadError(''); setBooking(null);
-    getBooking(id, controller.signal)
-      .then((result) => { if (!controller.signal.aborted) setBooking(result); })
-      .catch((err) => { if (!controller.signal.aborted) { setLoadError(err.message); if (err.status === 401) reload(); } });
-    return () => controller.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, retry]);
+  const request = useRequest(String(retry), (signal) => getBooking(id, signal)
+    .catch((err) => { if (err.status === 401) reload(); throw err; }));
+  const booking = updated ?? request.data ?? null;
+  const loadError = updated ? '' : request.error?.message || '';
   // Hủy đơn, xong thì cập nhật luôn dữ liệu đơn trên màn hình.
   async function cancel() {
     if (sending) return;
     setSending(true); setError('');
     try {
       const result = await cancelBooking(id);
-      setBooking(result.booking); setConfirming(false);
+      setUpdated(result.booking); setConfirming(false);
     } catch (err) { setError(err.message); if (err.status === 401) reload(); }
     finally { setSending(false); }
   }
   return <main className="container booking-page">
     <nav className="breadcrumbs" aria-label="Đường dẫn trang"><Link to="/my-bookings">Đơn của tôi</Link><span>/</span><span>Chi tiết đơn</span></nav>
-    {loadError ? <div className="state-box"><h1>Chưa xem được đơn đặt tour</h1><p role="alert">{loadError}</p><button className="button button-secondary" onClick={() => setRetry((n) => n + 1)}>Thử lại</button><Link className="button button-primary" to="/my-bookings">Về Đơn của tôi</Link></div>
+    {loadError ? <div className="state-box"><h1>Chưa xem được đơn đặt tour</h1><p role="alert">{loadError}</p><button className="button button-secondary" onClick={() => { setUpdated(null); setRetry((n) => n + 1); }}>Thử lại</button><Link className="button button-primary" to="/my-bookings">Về Đơn của tôi</Link></div>
       : !booking ? <p role="status">Đang tải thông tin đơn…</p>
         : <>{/* Vừa đặt xong (BookingPage chuyển sang kèm state.created) thì hiện thông báo thành công */}{location.state?.created && booking.status === 'confirmed' && <p className="auth-success" role="status">Đặt tour thành công. Chỗ của bạn đã được ghi nhận.</p>}
           <div className="booking-detail-heading"><div><p className="section-kicker">THÔNG TIN ĐẶT TOUR</p><h1>Đơn {bookingCode(booking.id)}</h1></div><span className={`booking-badge ${booking.status}`}>{bookingStatus(booking.status)}</span></div>

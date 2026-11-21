@@ -9,7 +9,7 @@ try {
   // Tạo ứng dụng Express với đầy đủ middleware và route (xem app.js).
   const app = createApp();
   // Fail before accepting traffic if the required migrations are missing.
-  const tables = ['users', 'user_sessions', 'tours', 'tour_departures', 'bookings', 'admin_audit_logs', 'booking_payment_events'];
+  const tables = ['destinations', 'users', 'user_sessions', 'tours', 'tour_departures', 'bookings', 'admin_audit_logs', 'booking_payment_events', 'support_requests'];
   // Kiểm tra từng bảng có tồn tại không; thiếu bảng nào thì dừng ngay và báo lỗi.
   for (const table of tables) {
     const result = await pool.query('SELECT to_regclass($1) AS name', ['public.' + table]);
