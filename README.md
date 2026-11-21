@@ -18,7 +18,79 @@
 
 **🔗 Truy cập: <https://travel.trizportal.com/>**
 
+<br />
+
+<a href="https://travel.trizportal.com/"><img src="docs/screenshots/home-light.jpg" alt="Trang chủ Travel Mint" width="100%" /></a>
+
 </div>
+
+---
+
+## 📸 Giao diện
+
+### 🧭 Chưa biết đi đâu? Trả lời 5 câu hỏi
+
+Khách chọn đi cùng ai, sở thích, số ngày, ngân sách và khu vực. Hệ thống chấm điểm các tour còn chỗ và xếp hạng theo mức phù hợp.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/quiz-question.jpg" alt="Câu hỏi chọn tour" /></td>
+    <td width="50%"><img src="docs/screenshots/quiz-result-light.jpg" alt="Kết quả gợi ý tour" /></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Từng câu hỏi với thanh tiến độ</sub></td>
+    <td align="center"><sub>Tour hợp nhất kèm % phù hợp</sub></td>
+  </tr>
+</table>
+
+### 🌗 Chế độ sáng / tối
+
+Một nút trên thanh điều hướng, ghi nhớ lựa chọn, mặc định theo cài đặt của máy.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/quiz-result-light.jpg" alt="Giao diện sáng" /></td>
+    <td width="50%"><img src="docs/screenshots/quiz-result-dark.jpg" alt="Giao diện tối" /></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>☀️ Sáng</sub></td>
+    <td align="center"><sub>🌙 Tối</sub></td>
+  </tr>
+</table>
+
+### 🗺️ Khám phá và đặt tour
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/tours.jpg" alt="Danh sách tour có bộ lọc" /></td>
+    <td width="50%"><img src="docs/screenshots/tour-detail.jpg" alt="Chi tiết tour và chọn lịch khởi hành" /></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Danh sách tour, lọc theo điểm đến, khu vực, ngân sách</sub></td>
+    <td align="center"><sub>Chi tiết tour, bộ sưu tập ảnh, chọn lịch còn chỗ</sub></td>
+  </tr>
+</table>
+
+### ✦ Tư vấn AI và hỗ trợ
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/ai-dark.jpg" alt="Trang tư vấn AI" /></td>
+    <td width="50%"><img src="docs/screenshots/contact-dark.jpg" alt="Trang liên hệ và hỗ trợ" /></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Lọc tour và chat với trợ lý Gemini</sub></td>
+    <td align="center"><sub>Gửi yêu cầu hỗ trợ, gắn với đơn đã đặt</sub></td>
+  </tr>
+</table>
+
+### 📱 Trên điện thoại
+
+<p align="center">
+  <img src="docs/screenshots/mobile-quiz-light.jpg" alt="Quiz trên điện thoại, giao diện sáng" width="260" />
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/mobile-quiz-dark.jpg" alt="Quiz trên điện thoại, giao diện tối" width="260" />
+</p>
 
 ---
 
@@ -26,6 +98,8 @@
 
 ### Dành cho khách
 - **Khám phá tour**: trang chủ có banner tự chạy, danh sách điểm đến, bộ sưu tập ảnh, hiệu ứng chuyển động.
+- **Gợi ý nhanh (quiz)**: chưa biết đi đâu thì trả lời 5 câu hỏi, hệ thống chấm điểm tour theo sở thích; không có tour khớp thì tự nới số ngày, ngân sách, khu vực.
+- **Chế độ sáng / tối**: đổi bằng một nút, ghi nhớ lựa chọn, không bị nháy trắng khi tải trang.
 - **Chi tiết tour**: mô tả hành trình, chọn lịch khởi hành còn chỗ, xem giá theo từng đợt.
 - **Đặt tour**: chọn lịch, số khách, nhập thông tin liên hệ; giá luôn lấy từ database, không tin dữ liệu từ trình duyệt.
 - **Đơn của tôi**: xem danh sách, chi tiết và tự hủy đơn chưa thanh toán trước ngày đi.
@@ -78,7 +152,8 @@ travel_AI_booking_doan/
 │       ├── components/      # Header, Footer, TourCard, Gallery...
 │       ├── services/        # Hàm gọi API
 │       ├── hooks/           # useRequest: tải dữ liệu dùng chung
-│       └── styles/          # CSS theo từng nhóm trang
+│       └── styles/          # CSS theo từng nhóm trang (theme.css: chế độ tối)
+├── docs/screenshots/        # Ảnh giao diện dùng trong README
 └── server/                  # API Express
     ├── src/
     │   ├── routes/          # Khai báo đường dẫn API
@@ -200,6 +275,7 @@ npm run build    # build bản production
 | `GET` | `/api/tours` | Danh sách tour còn lịch đi | Công khai |
 | `GET` | `/api/tours/:id/departures` | Lịch khởi hành còn chỗ | Công khai |
 | `GET` | `/api/recommendations` | Gợi ý tour theo bộ lọc | Công khai |
+| `GET` | `/api/recommendations/quiz` | Chọn tour bằng câu hỏi, chấm điểm theo sở thích | Công khai |
 | `POST` | `/api/recommendations/consult` | Chat tư vấn AI | Đăng nhập |
 | `POST` | `/api/bookings` | Tạo đơn đặt tour | Đăng nhập |
 | `POST` | `/api/bookings/:id/cancel` | Hủy đơn | Đăng nhập |
